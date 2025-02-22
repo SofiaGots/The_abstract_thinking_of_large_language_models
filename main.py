@@ -4,6 +4,9 @@ import os
 import yaml
 import hashlib
 
+import matplotlib.pyplot as plt
+from collections import Counter
+
 load_dotenv()
 
 PROXY_URL = "http://www.gots.ru:9041"
@@ -57,6 +60,17 @@ def read_yaml_file(filename):
 def make_hash(text):
     return hashlib.md5(text.encode()).hexdigest()
 
+def plot_results(data):
+    results = [entry['right answer'] for entry in data.values()]
+    counter = Counter(results)
+    labels = list(counter.keys())
+    sizes = list(counter.values())
+    
+    plt.figure(figsize=(6, 6))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', colors=['green', 'red'])
+    plt.title("Распределение ответов True/False")
+    plt.show()
+
 def main():
     data = read_yaml_file(FILE_NAME)
     for yaml_file in get_data_files('./data'):
@@ -73,8 +87,9 @@ def main():
                     f"Правильный ответ: {qa_dict['answer']}\n",
                     f"Ответ модели: {data[hsh]['answer']}\n",
                     f"Результат проверки: {data[hsh]['right answer']}\n\n"
-                        )
-        
+                )
+    
+    plot_results(data)  # Вызов функции построения графика
 
 if __name__ == '__main__':
     main()
